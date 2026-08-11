@@ -2,39 +2,42 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch  # noqa: F401
 
-from metrics.stablecoin import Stablecoin, StablecoinMetricType
-from providers.artemis import Artemis
+from metrics.stablecoin import Stablecoin, StablecoinMetricType  # noqa: F401
+from providers.artemis import Artemis  # noqa: F401
 
 
-def test_get_stablecoin_supply_returns_stablecoin_metric() -> None:
-    provider = Artemis(api_key="key")
-    mock_response = {
-        "data": {
-            "symbols": {
-                "solana": {
-                    "STABLECOIN_SUPPLY": [
-                        {"date": "2026-01-01", "val": 5_000_000_000.0},
-                    ]
-                }
-            }
-        }
-    }
-    mock_resp = MagicMock()
-    mock_resp.json.return_value = mock_response
-    mock_resp.raise_for_status = MagicMock()
-    sentinel_metric = object()
-
-    with (
-        patch.object(provider._session, "get", return_value=mock_resp),
-        patch.object(
-            Stablecoin, "from_metric_type", return_value=sentinel_metric
-        ) as mock_factory,
-    ):
-        result = provider.get_metric("stablecoin_supply", "2026-01-01", "solana")
-
-    assert result is sentinel_metric
-    mock_factory.assert_called_once()
-    assert mock_factory.call_args.kwargs["metric_type"] == StablecoinMetricType.SUPPLY
-    assert mock_factory.call_args.kwargs["value"] == 5_000_000_000.0
+# stablecoin_supply is intentionally out of Artemis's METRIC_MAP until they
+# confirm whether STABLECOIN_SUPPLY is circulating or total supply -- see
+# providers/artemis.py. Commented out rather than removed until that answer.
+# def test_get_stablecoin_supply_returns_stablecoin_metric() -> None:
+#     provider = Artemis(api_key="key")
+#     mock_response = {
+#         "data": {
+#             "symbols": {
+#                 "solana": {
+#                     "STABLECOIN_SUPPLY": [
+#                         {"date": "2026-01-01", "val": 5_000_000_000.0},
+#                     ]
+#                 }
+#             }
+#         }
+#     }
+#     mock_resp = MagicMock()
+#     mock_resp.json.return_value = mock_response
+#     mock_resp.raise_for_status = MagicMock()
+#     sentinel_metric = object()
+#
+#     with (
+#         patch.object(provider._session, "get", return_value=mock_resp),
+#         patch.object(
+#             Stablecoin, "from_metric_type", return_value=sentinel_metric
+#         ) as mock_factory,
+#     ):
+#         result = provider.get_metric("stablecoin_supply", "2026-01-01", "solana")
+#
+#     assert result is sentinel_metric
+#     mock_factory.assert_called_once()
+#     assert mock_factory.call_args.kwargs["metric_type"] == StablecoinMetricType.SUPPLY
+#     assert mock_factory.call_args.kwargs["value"] == 5_000_000_000.0
